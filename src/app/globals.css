@@ -1,26 +1,15 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+:root { --background: #050a12; --foreground: #f1f5f9; }
+* { box-sizing: border-box; } html { scroll-behavior: smooth; }
+body { margin: 0; background-color: var(--background); background-image:linear-gradient(rgba(2,7,16,.28),rgba(2,7,16,.55)),url('/fondoweb.png'); background-size:cover; background-position:center top; background-attachment:fixed; color: var(--foreground); font-family: var(--font-geist), sans-serif; }
+button, a { transition: all .2s ease; } ::selection { background: #22d3ee; color: #06232a; }
+.grid-bg { background:linear-gradient(180deg,rgba(3,9,20,.08),rgba(3,9,20,.3)); }
+.card-glow { border-radius:2px; box-shadow:5px 5px 0 #02050a; }
+.card-glow:hover { box-shadow:7px 7px 0 #02050a,0 0 40px rgba(39,184,255,.15); transform:translate(-2px,-2px); }
+.pixel-button { background:#1976b9; border:3px solid #53c8ff; border-right-color:#0b4774; border-bottom-color:#0b4774; box-shadow:3px 3px 0 #02050a; border-radius:2px; }
+.pixel-button:hover { background:#249cde; transform:translate(-1px,-1px); box-shadow:4px 4px 0 #02050a; }
+.pixel-panel { border:3px solid #24476f; border-right-color:#0b1c31; border-bottom-color:#0b1c31; border-radius:2px; box-shadow:5px 5px 0 #02050a; }
+@keyframes logo-float { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-18px) rotate(1deg); } }
+.logo-float { animation:logo-float 4.5s ease-in-out infinite; will-change:transform; }
+@media (prefers-reduced-motion: reduce) { .logo-float { animation:none; } html { scroll-behavior:auto; } }
+@media (max-width: 768px) { body { background-attachment:scroll; } }

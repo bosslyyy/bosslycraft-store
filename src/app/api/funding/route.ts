@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server"; import { db,hasDatabase } from "@/lib/db";
+export const dynamic="force-dynamic";
+export async function GET(){const goalCents=Number(process.env.MONTHLY_GOAL_CENTS||2000);let raisedCents=Number(process.env.DEMO_RAISED_CENTS||750);if(hasDatabase()){const now=new Date(),start=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1));const result=await db.purchase.aggregate({_sum:{amountCents:true},where:{status:"PAID",startsAt:{gte:start}}});raisedCents=result._sum.amountCents??0}return NextResponse.json({raisedCents,goalCents},{headers:{"Cache-Control":"s-maxage=60, stale-while-revalidate=300"}})}

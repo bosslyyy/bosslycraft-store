@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PurchaseStatus {
+  PENDING   @map("pending")
+  PAID      @map("paid")
+  DELIVERED @map("delivered")
+  REFUNDED  @map("refunded")
+  DISPUTED  @map("disputed")
+  CANCELLED @map("cancelled")
+}
+
+model Purchase {
+  id                        String         @id @default(cuid())
+  username                  String
+  rankId                    String
+  amountCents               Int
+  currency                  String         @default("usd")
+  durationDays              Int
+  status                    PurchaseStatus @default(PENDING)
+  paymentProvider           String?
+  externalPaymentId         String?        @unique
+  externalCheckoutSessionId String?        @unique
+  startsAt                  DateTime?
+  expiresAt                 DateTime?
+  deliveredAt               DateTime?
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+
+  @@index([username, status])
+  @@index([status, createdAt])
+  @@map("purchases")
+}
