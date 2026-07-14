@@ -18,6 +18,10 @@ const serverEnvSchema = z.object({
   TEBEX_PACKAGE_BOSSLY_PREMIUM_ID: z.coerce.number().int().positive(),
 });
 
+const webhookEnvSchema = z.object({
+  TEBEX_WEBHOOK_SECRET: z.string().min(16, "TEBEX_WEBHOOK_SECRET no está configurado"),
+});
+
 export function getServerEnv() {
   return serverEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
@@ -29,4 +33,11 @@ export function getServerEnv() {
     TEBEX_PACKAGE_BOSSLY_PLUS_ID: process.env.TEBEX_PACKAGE_BOSSLY_PLUS_ID,
     TEBEX_PACKAGE_BOSSLY_PREMIUM_ID: process.env.TEBEX_PACKAGE_BOSSLY_PREMIUM_ID,
   });
+}
+
+
+export function getTebexWebhookSecret() {
+  return webhookEnvSchema.parse({
+    TEBEX_WEBHOOK_SECRET: process.env.TEBEX_WEBHOOK_SECRET,
+  }).TEBEX_WEBHOOK_SECRET;
 }

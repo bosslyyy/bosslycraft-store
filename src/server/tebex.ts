@@ -12,7 +12,7 @@ type TebexResponse = {
   error?: string;
 };
 
-function packageIdFor(rankId: RankId) {
+export function getTebexPackageId(rankId: RankId) {
   const env = getServerEnv();
   return {
     donador: env.TEBEX_PACKAGE_BOSSLY_ID,
@@ -74,7 +74,7 @@ export async function createTebexCheckout(input: {
       method: "POST",
       headers: tebexHeaders(),
       body: JSON.stringify({
-        package_id: packageIdFor(input.rankId),
+        package_id: getTebexPackageId(input.rankId),
         quantity: 1,
       }),
       cache: "no-store",

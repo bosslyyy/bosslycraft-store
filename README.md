@@ -30,6 +30,8 @@ Tienda de rangos cosméticos con Next.js, TypeScript, Tailwind CSS, Prisma, Post
    - `MONTHLY_GOAL_CENTS`: meta mensual en centavos; `2000` equivale a $20 USD.
    - `DEMO_RAISED_CENTS`: cifra de demostración usada cuando corresponda.
    - `SERVER_API_TOKEN`: déjalo vacío; se configurará cuando exista el plugin de entrega.
+   - `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY` y los tres `TEBEX_PACKAGE_*_ID`: credenciales e identificadores privados de la integración Headless.
+   - `TEBEX_WEBHOOK_SECRET`: secreto que Tebex muestra al crear el endpoint de webhook. No es el secret del plugin del servidor.
 
    `.env.local` está ignorado por Git. `.env.example` contiene únicamente marcadores y valores públicos/no secretos.
 
@@ -80,11 +82,25 @@ Para crear una migración durante desarrollo usa `npm run db:migrate`. En CI/Ver
 
 Configura `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY` y los tres Package IDs únicamente en `.env.local` y en Vercel. La Private Key nunca debe usar el prefijo `NEXT_PUBLIC_` ni enviarse al navegador.
 
-La entrega se realiza mediante el plugin oficial de Tebex para Bukkit/Paper, sin RCON. El registro local permanece `pending` hasta que una futura integración de webhooks sincronice los estados de pago; esto no interfiere con la entrega del plugin.
+La entrega se realiza mediante el plugin oficial de Tebex para Bukkit/Paper, sin RCON. El endpoint `POST /api/webhooks/tebex` confirma pagos usando el cuerpo original y la firma `X-Signature`; además registra cada ID de evento para impedir que un reintento se procese dos veces. El webhook actualiza la base de datos, pero nunca ejecuta comandos ni entrega rangos: eso sigue siendo responsabilidad exclusiva del plugin oficial.
+
+Cuando exista una URL HTTPS pública, crea el endpoint en Tebex desde **Developers → Webhooks → Endpoints** con esta dirección:
+
+```text
+https://TU-DOMINIO/api/webhooks/tebex
+```
+
+Selecciona `payment.completed`, `payment.declined`, `payment.refunded` y los eventos de disputa. Copia el webhook secret a `TEBEX_WEBHOOK_SECRET` en Vercel y usa **Validate**. Mantén Test Mode activo hasta completar una compra ficticia y confirmar que la compra pasa de `pending` a `paid` en PostgreSQL.
+
+La barra mensual suma únicamente compras confirmadas como `paid` cuya fecha de inicio pertenece al mes UTC actual. Los precios, Package IDs y duración se vuelven a comprobar en el servidor con el catálogo canónico antes de aceptar la confirmación.
 
 ## Vercel
 
-Importa el repositorio, conecta PostgreSQL y añade las variables de `.env.example` desde Project Settings → Environment Variables. Antes del despliegue aplica `npm run db:deploy` contra la base correspondiente. No ejecutes migraciones automáticamente desde cada instancia de la aplicación.
+Importa el repositorio, conecta PostgreSQL y añade las variables de `.env.example` desde Project Settings → Environment Variables. El primer despliegue recibe una URL gratuita `*.vercel.app`; úsala como `NEXT_PUBLIC_APP_URL` y como base del webhook. Antes del despliegue aplica `npm run db:deploy` contra la base correspondiente. No ejecutes migraciones automáticamente desde cada instancia de la aplicación.
+
+## Paso de prueba a producción
+
+Primero valida checkout, webhook, base de datos y entrega con **Test Mode**. Para pasar a producción, completa la revisión de Tebex, desactiva Test Mode desde su panel y conserva las mismas variables privadas en Vercel. No reemplaces las claves por valores escritos en el código ni les añadas el prefijo `NEXT_PUBLIC_`.
 
 ## Verificación
 
