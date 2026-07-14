@@ -27,6 +27,7 @@ Tienda de rangos cosméticos con Next.js, TypeScript, Tailwind CSS, Prisma, Post
    - `DATABASE_URL`: cadena privada de conexión PostgreSQL. Debe permanecer solo en el servidor.
    - `NEXT_PUBLIC_APP_URL`: `http://localhost:3000` en local y la URL HTTPS del despliegue en Vercel.
    - `NEXT_PUBLIC_SERVER_IP`: IP o dominio público de BosslyCraft.
+   - `DISCORD_LINK`: invitación pública al Discord de soporte.
    - `MONTHLY_GOAL_CENTS`: meta mensual en centavos; `2000` equivale a $20 USD.
    - `DEMO_RAISED_CENTS`: cifra de demostración usada cuando corresponda.
    - `SERVER_API_TOKEN`: déjalo vacío; se configurará cuando exista el plugin de entrega.
