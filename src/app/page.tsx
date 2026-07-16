@@ -2,6 +2,7 @@ import { Hero } from "@/components/hero";
 import { RankStore } from "@/components/rank-store";
 import { ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { getPublicRanks } from "@/server/catalog";
+import Image from "next/image";
 
 export default function Home() {
   const ranks = getPublicRanks();
@@ -12,6 +13,18 @@ export default function Home() {
       <p className="flex gap-3"><ShieldCheck className="h-5 w-5 text-cyan-400"/>Pagos protegidos en modo de prueba</p>
       <p className="flex gap-3"><Zap className="h-5 w-5 text-cyan-400"/>Activación preparada para el servidor</p>
     </div></section>
+    <section className="server-banner mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <div className="pixel-panel overflow-hidden bg-[#080b1d] p-1.5 sm:p-2">
+        <Image
+          src="/bannerpng.png"
+          alt="BosslyCraft MC: survival custom, economía y eventos"
+          width={2170}
+          height={725}
+          sizes="(max-width: 1280px) 96vw, 1280px"
+          className="h-auto w-full"
+        />
+      </div>
+    </section>
     <RankStore ranks={ranks} />
   </main>;
 }
