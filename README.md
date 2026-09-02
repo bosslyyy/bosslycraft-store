@@ -1,59 +1,83 @@
-# BosslyCraft · Tienda de rangos
+# 🛒 BosslyCraft · Rank Store
 
-Tienda de rangos cosméticos con Next.js, TypeScript, Tailwind CSS, Prisma, PostgreSQL y Tebex Headless Checkout. Tebex procesa el pago y su plugin oficial entrega los rangos dentro del servidor.
+A cosmetic rank store for a Minecraft server, built with **Next.js**, **TypeScript**, **Tailwind CSS**, **Prisma**, **PostgreSQL**, and **Tebex Headless Checkout**. Tebex handles payment processing, and its official plugin delivers ranks in-game.
 
-## Requisitos
+🔗 **Live demo:** [bosslycraft-store.vercel.app](https://bosslycraft-store.vercel.app)
 
-- Node.js 20.9 o superior.
-- npm.
-- Una base PostgreSQL local o administrada (Neon, Supabase, Vercel Postgres u otra compatible).
+---
 
-## Configuración manual
+## 💡 What this project solves
 
-1. Instala las dependencias:
+A complete e-commerce store for gaming servers: the player picks a rank, pays securely through Tebex, and the system logs and validates the entire transaction in the database — never trusting data sent from the client (price and package are always re-validated server-side).
+
+---
+
+## 🛠️ Tech Stack
+
+- **Next.js** + **TypeScript**
+- **Tailwind CSS**
+- **Prisma** + **PostgreSQL**
+- **Tebex Headless Checkout** (payment processing)
+- Signed and verified webhooks
+
+---
+
+## 📋 Requirements
+
+- Node.js 20.9 or higher
+- npm
+- A local or managed PostgreSQL database (Neon, Supabase, Vercel Postgres, or another compatible option)
+
+---
+
+## ⚙️ Manual Setup
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Copia el archivo de ejemplo. En PowerShell:
+2. Copy the example env file. On PowerShell:
 
    ```powershell
    Copy-Item .env.example .env.local
    ```
 
-3. Edita `.env.local` y configura manualmente:
+3. Edit `.env.local` and configure manually:
 
-   - `DATABASE_URL`: cadena privada de conexión PostgreSQL. Debe permanecer solo en el servidor.
-   - `NEXT_PUBLIC_APP_URL`: `http://localhost:3000` en local y la URL HTTPS del despliegue en Vercel.
-   - `NEXT_PUBLIC_SERVER_IP`: IP o dominio público de BosslyCraft.
-   - `DISCORD_LINK`: invitación pública al Discord de soporte.
-   - `MONTHLY_GOAL_CENTS`: meta mensual en centavos; `2000` equivale a $20 USD.
-   - `DEMO_RAISED_CENTS`: cifra de demostración usada cuando corresponda.
-   - `SERVER_API_TOKEN`: déjalo vacío; se configurará cuando exista el plugin de entrega.
-   - `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY` y los tres `TEBEX_PACKAGE_*_ID`: credenciales e identificadores privados de la integración Headless.
-   - `TEBEX_WEBHOOK_SECRET`: secreto que Tebex muestra al crear el endpoint de webhook. No es el secret del plugin del servidor.
+   - `DATABASE_URL`: private PostgreSQL connection string. Must stay server-side only.
+   - `NEXT_PUBLIC_APP_URL`: `http://localhost:3000` locally, and the deployed HTTPS URL on Vercel.
+   - `NEXT_PUBLIC_SERVER_IP`: public IP or domain of BosslyCraft.
+   - `DISCORD_LINK`: public invite link to the support Discord.
+   - `MONTHLY_GOAL_CENTS`: monthly goal in cents; `2000` equals $20 USD.
+   - `DEMO_RAISED_CENTS`: demo figure used when applicable.
+   - `SERVER_API_TOKEN`: leave empty; will be set once the delivery plugin exists.
+   - `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY`, and the three `TEBEX_PACKAGE_*_ID`: private credentials and IDs for the Headless integration.
+   - `TEBEX_WEBHOOK_SECRET`: the secret Tebex shows when creating the webhook endpoint. Not the same as the server plugin secret.
 
-   `.env.local` está ignorado por Git. `.env.example` contiene únicamente marcadores y valores públicos/no secretos.
+   > `.env.local` is git-ignored. `.env.example` only contains placeholders and public/non-secret values.
 
-4. Aplica las migraciones y genera Prisma Client. Estos comandos cargan `.env.local` explícitamente:
+4. Apply migrations and generate the Prisma Client. These commands explicitly load `.env.local`:
 
    ```bash
    npm run db:deploy
    npm run db:generate
    ```
 
-5. Inicia la aplicación:
+5. Start the app:
 
    ```bash
    npm run dev
    ```
 
-   Abre `http://localhost:3000`.
+   Open `http://localhost:3000`.
 
-## Flujo de checkout
+---
 
-Los botones llaman a `POST /api/checkout/tebex` con solo:
+## 💳 Checkout Flow
+
+Buttons call `POST /api/checkout/tebex` with only:
 
 ```json
 {
@@ -62,13 +86,15 @@ Los botones llaman a `POST /api/checkout/tebex` con solo:
 }
 ```
 
-El servidor valida ambos campos, obtiene precio, duración y Package ID desde configuración privada, crea una compra `pending`, crea la cesta en Tebex y devuelve su URL de checkout. Los IDs internos válidos son `donador`, `donador_plus` y `donador_premium`. El endpoint rechaza campos adicionales, incluido cualquier precio enviado por el cliente.
+The server validates both fields, retrieves price, duration, and Package ID from private configuration, creates a `pending` purchase, creates the Tebex basket, and returns its checkout URL. Valid internal IDs are `donador`, `donador_plus`, and `donador_premium`. **The endpoint rejects any extra fields, including any price sent by the client** — this prevents price tampering from the frontend.
 
-La página de confirmación no cambia estados ni entrega rangos. La entrega corresponde exclusivamente al plugin oficial de Tebex después de que Tebex confirma la operación.
+The confirmation page does not change statuses or deliver ranks. Delivery is handled exclusively by the official Tebex plugin after Tebex confirms the transaction.
 
-## Base de datos
+---
 
-Las migraciones versionadas están en `prisma/migrations`. Los estados disponibles son:
+## 🗄️ Database
+
+Versioned migrations live in `prisma/migrations`. Available statuses are:
 
 - `pending`
 - `paid`
@@ -77,33 +103,41 @@ Las migraciones versionadas están en `prisma/migrations`. Los estados disponibl
 - `disputed`
 - `cancelled`
 
-Para crear una migración durante desarrollo usa `npm run db:migrate`. En CI/Vercel usa `npm run db:deploy`; no uses `db push` en producción.
+Use `npm run db:migrate` to create a migration during development. Use `npm run db:deploy` in CI/Vercel; never use `db push` in production.
 
-## Tebex y entrega
+---
 
-Configura `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY` y los tres Package IDs únicamente en `.env.local` y en Vercel. La Private Key nunca debe usar el prefijo `NEXT_PUBLIC_` ni enviarse al navegador.
+## 🔗 Tebex & Delivery
 
-La entrega se realiza mediante el plugin oficial de Tebex para Bukkit/Paper, sin RCON. El endpoint `POST /api/webhooks/tebex` confirma pagos usando el cuerpo original y la firma `X-Signature`; además registra cada ID de evento para impedir que un reintento se procese dos veces. El webhook actualiza la base de datos, pero nunca ejecuta comandos ni entrega rangos: eso sigue siendo responsabilidad exclusiva del plugin oficial.
+Set `TEBEX_PUBLIC_TOKEN`, `TEBEX_PRIVATE_KEY`, and the three Package IDs only in `.env.local` and in Vercel. The Private Key must never use the `NEXT_PUBLIC_` prefix or be sent to the browser.
 
-Cuando exista una URL HTTPS pública, crea el endpoint en Tebex desde **Developers → Webhooks → Endpoints** con esta dirección:
+Delivery happens through the official Tebex plugin for Bukkit/Paper, without RCON. The `POST /api/webhooks/tebex` endpoint confirms payments using the raw body and the `X-Signature` header, and logs every event ID to prevent a retry from being processed twice. The webhook updates the database, but never executes commands or delivers ranks — that remains the exclusive responsibility of the official plugin.
+
+Once you have a public HTTPS URL, create the endpoint in Tebex under **Developers → Webhooks → Endpoints** with this address:
 
 ```text
-https://TU-DOMINIO/api/webhooks/tebex
+https://YOUR-DOMAIN/api/webhooks/tebex
 ```
 
-Selecciona `payment.completed`, `payment.declined`, `payment.refunded` y los eventos de disputa. Copia el webhook secret a `TEBEX_WEBHOOK_SECRET` en Vercel y usa **Validate**. Mantén Test Mode activo hasta completar una compra ficticia y confirmar que la compra pasa de `pending` a `paid` en PostgreSQL.
+Select `payment.completed`, `payment.declined`, `payment.refunded`, and the dispute events. Copy the webhook secret into `TEBEX_WEBHOOK_SECRET` on Vercel and use **Validate**. Keep Test Mode on until you've completed a test purchase and confirmed it moves from `pending` to `paid` in PostgreSQL.
 
-La barra mensual suma únicamente compras confirmadas como `paid` cuya fecha de inicio pertenece al mes UTC actual. Los precios, Package IDs y duración se vuelven a comprobar en el servidor con el catálogo canónico antes de aceptar la confirmación.
+The monthly progress bar only counts purchases confirmed as `paid` whose start date falls within the current UTC month. Prices, Package IDs, and duration are re-checked server-side against the canonical catalog before accepting confirmation.
 
-## Vercel
+---
 
-Importa el repositorio, conecta PostgreSQL y añade las variables de `.env.example` desde Project Settings → Environment Variables. El primer despliegue recibe una URL gratuita `*.vercel.app`; úsala como `NEXT_PUBLIC_APP_URL` y como base del webhook. Antes del despliegue aplica `npm run db:deploy` contra la base correspondiente. No ejecutes migraciones automáticamente desde cada instancia de la aplicación.
+## ☁️ Vercel
 
-## Paso de prueba a producción
+Import the repository, connect PostgreSQL, and add the variables from `.env.example` under Project Settings → Environment Variables. The first deploy gets a free `*.vercel.app` URL — use it as `NEXT_PUBLIC_APP_URL` and as the webhook base. Run `npm run db:deploy` against the corresponding database before deploying. Don't run migrations automatically from every app instance.
 
-Primero valida checkout, webhook, base de datos y entrega con **Test Mode**. Para pasar a producción, completa la revisión de Tebex, desactiva Test Mode desde su panel y conserva las mismas variables privadas en Vercel. No reemplaces las claves por valores escritos en el código ni les añadas el prefijo `NEXT_PUBLIC_`.
+---
 
-## Verificación
+## 🚦 Going from Test to Production
+
+First validate checkout, webhook, database, and delivery in **Test Mode**. To go live, complete Tebex's review, disable Test Mode from their dashboard, and keep the same private variables in Vercel. Never replace keys with hardcoded values or add the `NEXT_PUBLIC_` prefix to them.
+
+---
+
+## ✅ Verification
 
 ```bash
 npm run lint
@@ -112,4 +146,4 @@ npm test
 npm run build
 ```
 
-No hagas commit ni push hasta revisar los cambios y las migraciones.
+Don't commit or push until you've reviewed the changes and migrations.
